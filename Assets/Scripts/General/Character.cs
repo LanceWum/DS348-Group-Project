@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Character : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class Character : MonoBehaviour
     private float invulnerableCounter;
     public bool invulnerable;
 
+    public UnityEvent<Transform> OnTakeDamage;
+    public UnityEvent OnDie;
     private void Start()
     {
         currentHealth = maxHealth;
@@ -39,10 +42,12 @@ public class Character : MonoBehaviour
         {
             currentHealth -= attacker.damage;
             TriggerInvulnerable();
+            OnTakeDamage?.Invoke(attacker.transform);
         }
         else
         {
             currentHealth = 0;
+            OnDie?.Invoke();
         }
         
     }
