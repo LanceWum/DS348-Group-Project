@@ -11,24 +11,31 @@ public class PlayerController : MonoBehaviour
     public Vector2 inputDirection;
     public Rigidbody2D rb;
     private PhysicsCheck _physicsCheck;
+    private PlayerAnimation _playerAnimation;
     
     [Header("Basic Parameters")]
     public float speed;
     public float jumpForce;
     public float hurtForce;
+    public int combo;
 
+    [Header("Status")]
     public bool isDead;
     public bool isHurt;
+    public bool isAttack;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         _physicsCheck = GetComponent<PhysicsCheck>();
+        _playerAnimation = GetComponent<PlayerAnimation>();
         inputControl = new PlayerInputControl();
         inputControl.Gameplay.Jump.started += Jump;
-        
+
+        inputControl.Gameplay.Attack.started += PlayerAttack;
     }
-    
+
+
     private void OnEnable()
     {
         inputControl.Enable();
@@ -84,19 +91,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void PlayerAttack(InputAction.CallbackContext obj)
+    {
+        _playerAnimation.PlayAttack();
+        isAttack = true;
+    }
+
+    #region UnityEvent
     public void GetHurt(Transform attacker)
-    {
-        isHurt = true;
-        rb.velocity = Vector2.zero;
-        Vector2 direction = new Vector2((transform.position.x - attacker.position.x), 0).normalized;
-        
-        rb.AddForce(direction * hurtForce, ForceMode2D.Impulse);
-    }
-
-    public void PlayerDead()
-    {
-        isDead = true;
-        inputControl.Gameplay.Disable();
-    }
-
+        {
+            isHurt = true;
+            rb.velocity = Vector2.zero;
+            Vector2 direction = new Vector2((transform.position.x - attacker.position.x), 0).normalized;
+            
+            rb.AddForce(direction * hurtForce, ForceMode2D.Impulse);
+        }
+    
+        public void PlayerDead()
+        {
+            isDead = true;
+            inputControl.Gameplay.Disable();
+        }
+    #endregion
 }
