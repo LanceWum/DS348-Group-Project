@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public Rigidbody2D rb;
     private PhysicsCheck _physicsCheck;
     private PlayerAnimation _playerAnimation;
+    public CapsuleCollider2D coll;
     
     [Header("Basic Parameters")]
     public float speed;
@@ -19,6 +20,10 @@ public class PlayerController : MonoBehaviour
     public float hurtForce;
     public int combo;
 
+    [Header("Physics Material")] 
+    public PhysicsMaterial2D normal;
+    public PhysicsMaterial2D wall;
+    
     [Header("Status")]
     public bool isDead;
     public bool isHurt;
@@ -30,6 +35,7 @@ public class PlayerController : MonoBehaviour
         _physicsCheck = GetComponent<PhysicsCheck>();
         _playerAnimation = GetComponent<PlayerAnimation>();
         inputControl = new PlayerInputControl();
+        coll = GetComponent<CapsuleCollider2D>();
         inputControl.Gameplay.Jump.started += Jump;
 
         inputControl.Gameplay.Attack.started += PlayerAttack;
@@ -50,11 +56,12 @@ public class PlayerController : MonoBehaviour
     {
         inputDirection = inputControl.Gameplay.Move.ReadValue<Vector2>();
         //Debug.Log(inputDirection);
+        CheckState();
     }
     
     private void FixedUpdate()
     {
-        if(!isHurt)
+        if(!isHurt && !isAttack)
             Move();
     }
     
@@ -113,4 +120,9 @@ public class PlayerController : MonoBehaviour
             inputControl.Gameplay.Disable();
         }
     #endregion
+
+    private void CheckState()
+    {
+        coll.sharedMaterial = _physicsCheck.isGround ? normal : wall;
+    }
 }
